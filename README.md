@@ -11,7 +11,7 @@ This allows deep path observations in complex objects.
 Nothing is mapped, objects are wrapped on demand. 
 This saves memory, processing, and allows the source object to be unharmed by the nested proxies.
 
-Reflection is used to achievve this.
+Reflection is used to achieve this.
 
 
 # The Implementation
@@ -105,15 +105,15 @@ const data = {
 ```
 
 Here is a simple example that records the root property being accessed and the 
-the child value it's being modified with.
+child value it's being modified with.
 
 ```
 const proxy = ProxyObserver(data, function() {
 
-    const chain = Array.prototype.slice(arguments);
+    const chain = Array.prototype.slice.call(arguments);
     
-    const { prop } = chain.shift();
-    const { value, oldValue } = chain.pop();
+    const { prop } = chain[0];
+    const { value, oldValue } = chain[chain.length - 1];
 
     console.log('the root property', 
                 prop, 
