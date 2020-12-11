@@ -1,5 +1,7 @@
 # ProxyObserver.js
 
+[![Build Status](https://travis-ci.com/createvibe/proxyobserver.svg?branch=master)](https://travis-ci.com/createvibe/proxyobserver)
+
 Use a proxy object to observe deep changes in any javascript object (or array) and maintain the object path,
 from the root property to the nested property that was modified.
 
