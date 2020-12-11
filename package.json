@@ -1,0 +1,34 @@
+{
+  "name": "proxyobserver",
+  "version": "1.0.0",
+  "description": "Deep Observable Proxy - Maintains the observed object path for complex data types to know which root properties have been modified.",
+  "main": "ProxyObserver.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [
+    "observe",
+    "observer",
+    "proxy",
+    "reactive",
+    "watch",
+    "watcher",
+    "object",
+    "path",
+    "deep",
+    "nested",
+    "changes",
+    "change",
+    "modifications",
+    "modify"
+  ],
+  "author": {
+    "name": "Anthony Matarazzo",
+    "email": "email@anthonym.us",
+    "url": "http://anthony.technology"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^26.6.3"
+  }
+}
