@@ -1,4 +1,13 @@
 /*
+ * This file is part of the @createvibe/proxyobserver project.
+ *
+ * (c) Anthony Matarazzo <email@anthonym.us>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+/*
  * For a detailed explanation regarding each configuration property, visit:
  * https://jestjs.io/docs/en/configuration.html
  */

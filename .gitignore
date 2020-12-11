@@ -1,3 +1,12 @@
+##
+# This file is part of the @createvibe/proxyobserver project.
+#
+# (c) Anthony Matarazzo <email@anthonym.us>
+#
+# For the full copyright and license information, please view the LICENSE
+# file that was distributed with this source code.
+##
+
 # Vendor packages
 node_modules
 

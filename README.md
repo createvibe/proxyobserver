@@ -72,7 +72,7 @@ function ProxyObserver(target, observer) {
         get: (target, prop, receiver) => {
             const value = target[prop];
             if (typeof value === 'object') {
-                return ProxyObserver(value, observer.bind(null, {target, prop, value, receiver}));
+                return ProxyObserver(value, observer.bind(null, {target, prop, value, oldValue:undefined, receiver}));
             }
             return value;
         },
@@ -83,6 +83,13 @@ function ProxyObserver(target, observer) {
             }
             observer({target, prop, value, oldValue, receiver});
             return Reflect.set(target, prop, value, receiver);
+        },
+        deleteProperty: (target, prop) => {
+            if (prop in target) {
+                const oldValue = Reflect.get(target, prop);
+                observer({target, prop, value:undefined, oldValue, receiver:undefined});
+                Reflect.deleteProperty(target, prop);
+            }
         }
     });
 }

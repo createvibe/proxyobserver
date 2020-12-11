@@ -1,3 +1,12 @@
+/*
+ * This file is part of the @createvibe/proxyobserver project.
+ *
+ * (c) Anthony Matarazzo <email@anthonym.us>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 const ProxyObserver = require('./ProxyObserver');
 
 function getData() {
@@ -39,6 +48,19 @@ describe('it should work', () => {
 		expect(link.value).toEqual('modified');
 		expect(link.oldValue).toEqual('foo');
 		expect(data.one).toEqual('modified');
+	});
+
+	test('it should observe property deletion', () => {
+		let chain, leaf;
+		const proxy = ProxyObserver(getData(), function() {
+			chain = Array.prototype.slice.call(arguments);
+			leaf = chain[0];
+		});
+		delete proxy.one;
+		expect(chain.length).toBe(1);
+		expect(leaf.prop).toEqual('one');
+		expect(leaf.oldValue).toEqual('foo');
+		expect(leaf.value).toBe(undefined);
 	});
 
 	test('it should observe an array', () => {
@@ -133,8 +155,8 @@ describe('it should work', () => {
 		proxy.removeProperty('newProperty');
 		expect(chain.length).toBe(1);
 		expect(leaf.prop).toEqual('newProperty');
-		expect(leaf.value).toEqual('modified');
-		expect(leaf.oldValue).toEqual('I made a new thing');
+		expect(leaf.value).toEqual(undefined);
+		expect(leaf.oldValue).toEqual('modified');
 		expect(instance.newProperty).toEqual(undefined);
 	});
 
