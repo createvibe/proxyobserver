@@ -1,4 +1,4 @@
-const ProxyObserver = require('proxyobserver');
+const ProxyObserver = require('./ProxyObserver');
 
 function getData() {
 	return {

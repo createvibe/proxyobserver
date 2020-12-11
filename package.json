@@ -1,5 +1,5 @@
 {
-  "name": "proxyobserver",
+  "name": "@createvibe/proxyobserver",
   "version": "1.0.0",
   "description": "Deep Observable Proxy - Maintains the observed object path for complex data types to know which root properties have been modified.",
   "main": "ProxyObserver.js",
@@ -32,8 +32,8 @@
   },
   "license": "ISC",
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/createvibe/proxyobserver.git"
+    "type": "git",
+    "url": "https://github.com/createvibe/proxyobserver.git"
   },
   "devDependencies": {
     "jest": "^26.6.3"
