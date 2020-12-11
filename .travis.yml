@@ -11,4 +11,4 @@ before_install:
   - npm update
 
 script:
-  - npm run test
+  - npm test
