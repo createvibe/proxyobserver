@@ -8,12 +8,12 @@
  */
 
 /**
- * The ProxyObserver recursively wraps complex objects for observations
+ * The proxyobserver recursively wraps complex objects for observations
  * @param {{}|[]} target The target you want to observe
  * @param {function} observer
  * @throws TypeError if observer is not a function
  */
-function ProxyObserver(target, observer) {
+function proxyobserver(target, observer) {
     if (typeof observer !== 'function') {
         throw new TypeError('Expecting observer to be a callable function.');
     }
@@ -21,7 +21,7 @@ function ProxyObserver(target, observer) {
         get: (target, prop, receiver) => {
             const value = target[prop];
             if (typeof value === 'object') {
-                return ProxyObserver(value, observer.bind(null, {target, prop, value, oldValue:undefined, receiver}));
+                return proxyobserver(value, observer.bind(null, {target, prop, value, oldValue:undefined, receiver}));
             }
             return value;
         },
@@ -37,9 +37,9 @@ function ProxyObserver(target, observer) {
             if (prop in target) {
                 const oldValue = Reflect.get(target, prop);
                 observer({target, prop, value:undefined, oldValue, receiver:undefined});
-                Reflect.deleteProperty(target, prop);
+                return Reflect.deleteProperty(target, prop);
             }
         }
     });
 }
-module.exports = ProxyObserver;
+module.exports = proxyobserver;

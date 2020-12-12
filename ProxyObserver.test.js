@@ -186,6 +186,13 @@ describe('it should observe deep changes to nested objects', () => {
 		expect(leaf.oldValue).toEqual('two');
 		expect(proxy.two[1]).toEqual('modified');
 		expect(data.two[1]).toEqual('modified');
+		expect(proxy.two.length).toBe(6);
+		proxy.two.pop();
+		expect(proxy.two.length).toBe(5);
+		proxy.two.push(4);
+		expect(proxy.two.length).toBe(6);
+		expect(leaf.value).toBe(4);
+		expect(leaf.oldValue).toBe(undefined);
 	});
 
 	test('it should observe a nested array inside a shallow array property', () => {
