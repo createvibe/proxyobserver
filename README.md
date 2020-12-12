@@ -1,4 +1,4 @@
-# ProxyObserver.js
+# proxyobserver
 
 [![Build Status](https://travis-ci.com/createvibe/proxyobserver.svg?branch=master)](https://travis-ci.com/createvibe/proxyobserver)
 
@@ -61,10 +61,10 @@ observer({target: {..}, prop: 'root', value: {..}},
 ```
 # The Code Is Small
 
-No really, this is all there is.
+The code is small. It's a simple recursive function.
 
 ```
-function ProxyObserver(target, observer) {
+function proxyobserver(target, observer) {
     if (typeof observer !== 'function') {
         throw new TypeError('Expecting observer to be a callable function.');
     }
@@ -72,7 +72,7 @@ function ProxyObserver(target, observer) {
         get: (target, prop, receiver) => {
             const value = target[prop];
             if (typeof value === 'object') {
-                return ProxyObserver(value, observer.bind(null, {target, prop, value, oldValue:undefined, receiver}));
+                return proxyobserver(value, observer.bind(null, {target, prop, value, oldValue:undefined, receiver}));
             }
             return value;
         },
@@ -88,7 +88,7 @@ function ProxyObserver(target, observer) {
             if (prop in target) {
                 const oldValue = Reflect.get(target, prop);
                 observer({target, prop, value:undefined, oldValue, receiver:undefined});
-                Reflect.deleteProperty(target, prop);
+                return Reflect.deleteProperty(target, prop);
             }
         }
     });
@@ -111,6 +111,8 @@ const data = {
 };
 ```
 
+## Simple Example
+
 Here is a simple example that records the root property being accessed and the 
 child value it's being modified with.
 
@@ -122,9 +124,13 @@ const proxy = ProxyObserver(data, function() {
     const { prop } = chain[0];
     const { value, oldValue } = chain[chain.length - 1];
 
+    const path = chain.map(node => node.prop);
+
     console.log('the root property', 
                 prop, 
                 'had a nested object modified with the value', 
+                path.join('.'),
+                '=',
                 value,
                 'which had an old value of',
                 oldValue);
@@ -132,71 +138,101 @@ const proxy = ProxyObserver(data, function() {
 });
 ```
 
-Here is a verbose example that traverses the entire observed callback chain 
-to reassemble the object path that was accessed to make the modification.
+## Complicated Example
+
+Here is a complicated example that will record changes and reverse them.
+
+> See [@createvibe/replayproxy](https://github.com/createvibe/replayproxy) for a full implementation.
+
+Run it on RunKit [https://runkit.com/createvibe/5fd44d27b15b68001a522831](https://runkit.com/createvibe/5fd44d27b15b68001a522831).
 
 ```
-const proxy = ProxyObserver(data, function() {
+const proxyobserver = require("@createvibe/proxyobserver")
 
-    console.log('we got a changed value!');
+const data = {initializing: true};
+const reverse = [];
 
-    let name, value;
-    const path = [];
+const proxy = proxyobserver(data, function() {
     const chain = Array.prototype.slice.call(arguments);
-    while (chain.length !== 0) {
-        const link = chain.shift();
-        path.push( link.prop );
-        if (!name) {
-            name = link.prop;
+    const root = chain[0];
+    const leaf = chain[chain.length - 1];
+    const path = chain.map(link => link.prop);
+    const link = {chain: chain.slice(), root, leaf, path};
+    leaf.value = leaf.value && JSON.parse(JSON.stringify(leaf.value)) || leaf.value;
+    leaf.oldValue = leaf.oldValue && JSON.parse(JSON.stringify(leaf.oldValue)) || leaf.oldValue;
+    reverse.push(() => {
+        if (leaf.oldValue === undefined) {
+            return Reflect.deleteProperty(leaf.target, leaf.prop);
         }
-        value = link.value;
-    }
-
-    console.log('>', name, '<', path.join('.'), '=', value);
-
-    // name holds the root property in the proxy that was modified
-    // value holds the new value for the last property in the chain
+        let node;
+        let reference = data;
+        const chain = link.chain.slice(0, -1);
+        while (node = chain.shift()) {
+            const { prop, oldValue } = node;
+            if (!(prop in reference)) {
+                Reflect.defineProperty(reference, prop, {
+                    value: oldValue,
+                    enumerable: true,
+                    configurable: true,
+                    writable: true
+                });
+            }
+            reference = reference[prop];
+        }
+        if (leaf.prop in reference) {
+            return Reflect.set(reference, leaf.prop, leaf.oldValue, leaf.receiver);
+        }
+        Reflect.defineProperty(reference, leaf.prop, {
+            value: leaf.oldValue,
+            enumerable: true,
+            configurable: true,
+            writable: true
+        });
+    });
 });
+```
+Continue manipulating and mutating the proxy object.
 
-proxy.two[5][1] = 'XXX';
+```
+// remove the initializing flag
+delete proxy.initializing;
 
-// console: we got a changed value!
-// console: > two < two.5.1 = XXX
-
-proxy.three.foo = 'testing nested object';
-
-// console: we got a changed value!
-// console: > three < three.foo = testing nested object
-
-proxy.three.bar = {
-  test: 'new object',
-  list: [1,2,3]
+// add data to the object
+proxy.one = 'test';
+proxy.two = [1,2,3];
+proxy.three = {
+    nested: [4,5,6],
+    data: {value: 'test'}
 };
 
-// console: we got a changed value!
-// console: > three < three.bar = {test: "new object", list: Array(3)}
+// modify data in the object
+proxy.one = 'modified';
+proxy.two[1] = 'test';
+proxy.three.data.value = 'modified';
+proxy.three.nested.push(7);
+proxy.three.nested.splice(0,0,3);
 
-proxy.three.bar.list.push(4);
+// delete data
+delete proxy.one;
 
-// console: we got a changed value!
-// console: > three < three.bar.list.3 = 4
+// proxy.one === undefined
 
-proxy.three.bar.list.splice(2,0,9);
+console.log('the updated data', JSON.stringify(data));
+```
+Now undo the last action.
 
-// console: we got a changed value!
-// console:  > three < three.bar.list.4 = 4
+```
 
-// console:  we got a changed value!
-// console: > three < three.bar.list.3 = 3
+reverse.pop().call(null);
 
-// console: we got a changed value!
-// console: > three < three.bar.list.2 = 9
+// proxy.one === 'modified'
 
-console.log(proxy.three.bar.list.slice());
+```
+Now undo the rest of the changes.
 
-// console: (5) [1, 2, 9, 3, 4]
-
-console.log(data.three.bar.list);
-
-// console: (5) [1, 2, 9, 3, 4]
+```
+// now reverse the rest of the changes!
+while (reverse.length !== 0) {
+    reverse.pop().call(null);
+}
 ```
