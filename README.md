@@ -5,7 +5,7 @@
 Use a proxy object to observe deep changes in any javascript object (or array) and maintain the object path,
 from the root property to the nested property that was modified.
 
-When nested objects are accessed, a new ProxyObserver is returned for the nested object, instead of the object itself.
+When nested objects are accessed, a new `proxyobserver` is returned for the nested object, instead of the object itself.
 This allows deep path observations in complex objects.
 
 Nothing is mapped, objects are wrapped on demand. 
