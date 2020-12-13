@@ -13,6 +13,13 @@ This saves memory, processing, and allows the source object to be unharmed by th
 
 Reflection is used to achieve this.
 
+# Installation
+
+Using NPM to install the package.
+
+```
+npm install --save @createvibe/proxyobserver
+```
 
 # The Implementation
 
