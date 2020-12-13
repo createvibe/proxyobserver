@@ -147,7 +147,8 @@ Here is a complicated example that will record changes and reverse them.
 Run it on RunKit [https://runkit.com/createvibe/5fd44d27b15b68001a522831](https://runkit.com/createvibe/5fd44d27b15b68001a522831).
 
 ```
-const proxyobserver = require("@createvibe/proxyobserver")
+const proxyobserver = require('@createvibe/proxyobserver');
+const makeReference = require('@createvibe/proxyobserver/lib/makeReference');
 
 const data = {initializing: true};
 const reverse = [];
@@ -157,28 +158,14 @@ const proxy = proxyobserver(data, function() {
     const root = chain[0];
     const leaf = chain[chain.length - 1];
     const path = chain.map(link => link.prop);
-    const link = {chain: chain.slice(), root, leaf, path};
+    const observed = {chain: chain.slice(), root, leaf, path};
     leaf.value = leaf.value && JSON.parse(JSON.stringify(leaf.value)) || leaf.value;
     leaf.oldValue = leaf.oldValue && JSON.parse(JSON.stringify(leaf.oldValue)) || leaf.oldValue;
     reverse.push(() => {
         if (leaf.oldValue === undefined) {
             return Reflect.deleteProperty(leaf.target, leaf.prop);
         }
-        let node;
-        let reference = data;
-        const chain = link.chain.slice(0, -1);
-        while (node = chain.shift()) {
-            const { prop, oldValue } = node;
-            if (!(prop in reference)) {
-                Reflect.defineProperty(reference, prop, {
-                    value: oldValue,
-                    enumerable: true,
-                    configurable: true,
-                    writable: true
-                });
-            }
-            reference = reference[prop];
-        }
+        const reference = makeReference(observed, proxy);
         if (leaf.prop in reference) {
             return Reflect.set(reference, leaf.prop, leaf.oldValue, leaf.receiver);
         }
