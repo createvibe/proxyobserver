@@ -117,7 +117,7 @@ Here is a simple example that records the root property being accessed and the
 child value it's being modified with.
 
 ```
-const proxy = ProxyObserver(data, function() {
+const proxy = proxyobserver(data, function() {
 
     const chain = Array.prototype.slice.call(arguments);
     
