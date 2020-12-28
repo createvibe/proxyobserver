@@ -1,6 +1,6 @@
 {
   "name": "@createvibe/proxyobserver",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Deep Observable Proxy - Maintains the observed object path for complex data types to know which root properties have been modified.",
   "main": "lib/proxyobserver.js",
   "engines": {
