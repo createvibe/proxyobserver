@@ -4,7 +4,7 @@
   "description": "Deep Observable Proxy - Maintains the observed object path for complex data types to know which root properties have been modified.",
   "main": "lib/proxyobserver.js",
   "engines": {
-    "node": "^14.15.1"
+    "node": ">=14.15.0"
   },
   "scripts": {
     "test": "jest"
